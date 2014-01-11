@@ -46,7 +46,7 @@
             <li><a href="#about">Help</a></li>
             <li><a href="#feedback">Feedback</a></li>
           </ul>
-        </div><!--/.nav-collapse -->
+        </div>
       </div>
     </div>
 
@@ -54,88 +54,79 @@
         <div class="row"> <!-- Main Row -->
             <div class="col-sm-2">
                 <h3> My Decisions </h3>
-                <ul class="nav nav-pills nav-stacked">
-                    <li class="active"> <a href="#"> College </a> </li>
-                    <li> <a href="#"> Job </a> </li>
-                    <li> <a href="#"> Place of Residence </a> </li>
-                    <li> <a href="#"> Tasks to do </a> </li>
+                <ul class="nav nav-pills nav-stacked" id="decision_list">
                     <li>
-                        <a href="#">
-                            <span class="glyphicon glyphicon-plus-sign"></span>
-                            New Decision
+                        <a href="#" id="add">
+                            <span class="glyphicon glyphicon-plus-sign"> </span>
+                            Add Decision
                         </a>
                     </li>
-
                 </ul>
             </div>
             <div class="col-sm-10">
-                <!-- The rest goes here -->
                 <div class="row">
                     <div class="col-sm-5">
                         <h3> Objectives </h3>
-                         <div id="objectivesTable" class="handsontable"></div>
-                        <br />
-                        <button type="button" class="btn btn-default" name="newObj">
+                        <p>
+                        This table contains objectives. Each objective has an
+                        importance, that is, how much does this objective mean
+                        to you. I try to use a 1-5 scale for importance.
+                        </p>
+                        <p> <div id="objectivesTable" class="handsontable"></div> </p>
+                        <p> <button type="button" class="btn btn-default" name="newObj">
                             <span class="glyphicon glyphicon-plus-sign"></span>
-                            Add Objective
-                        </button>
+                                Add Objective
+                        </button> </p>
                     </div>
                     <div class="col-sm-5">
-                        <h3> Options </h3>
-                        <div id="altsTable" class="handsontable"></div>
-                        <br />
-                        <button type="button" class="btn btn-default" name="newAlt">
-                            <span class="glyphicon glyphicon-plus-sign"></span>
-                            Add Option
-                        </button>
-                    </div>
-                    <!--
-                    <div class="col-sm-5">
-                        <h3> Objectives and Importances </h3>
-                        <p> This table contains objectives. Each objective has an
-                        importance, that is, how much does this objective mean to you. I
-                        try to use a 1-5 scale for importance.
-                        </p>
-
-                        <h3> Options </h3>
-                        <p> Each of your options goes here. For each option, rank how
-                        well that options meets each objective. For example, if an
-                        objective in a decision of mine were "fun" and one of my options
-                        was "decision making" I would place a 5 in the box corresponding
-                        to that objective, in that option's row. Either a 1-5 or 1-7
-                        scale works well here.
-                        </p>
-
                         <h3> Results </h3>
                         <p>
-                        The program does some math, and tells you how your options
-                        measure up to your criteria. Try changing the importance of some
-                        of your objectives and see how these change! For example, if you
-                        are looking at the default values, make the importance of cost
-                        5. U of H now is ahead!
+                        The program does some math, and tells you how your
+                        options measure up to your criteria. Try changing the
+                        importance of some of your objectives and see how these
+                        change! For example, if you are looking at the default
+                        values, make the importance of cost 5. U of H now is
+                        ahead!
                         </p>
-                    </div>
-                    -->
-                </div>
-                <div class="row">
-                    <div class="col-sm-10">
                         <div id="resTable" class="handsontable"></div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-sm-10">
+                        <h3> Options </h3>
+                        <p>
+                        Each of your options goes here. For each option, rank
+                        how well that options meets each objective. For example,
+                        if an objective in a decision of mine were "fun" and one
+                        of my options was "decision making" I would place a 5 in
+                        the box corresponding to that objective, in that
+                        option's row. Either a 1-5 or 1-7 scale works well here.
+                        </p>
+                        <p> <div id="altsTable" class="handsontable"></div> </p>
+                        <p> <button type="button" class="btn btn-default" name="newAlt">
+                            <span class="glyphicon glyphicon-plus-sign"></span>
+                            Add Option
+                        </button> </p>
+                    </div>
+                </div>
             </div>
-        </div>
-
+        </div> <!-- /main row -->
     </div><!-- /.container -->
 
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="http://handsontable.com/dist/jquery.handsontable.full.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="http://handsontable.com/demo/bootstrap/js/bootstrap.min.js"></script>
+    <!-- libs -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"> </script>
+
+    <!-- Bootstrap -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- handsontable -->
+    <script src="http://handsontable.com/dist/jquery.handsontable.full.js"></script>
+    <script type="text/javascript" src="http://handsontable.com/demo/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- custom -->
     <script type="text/javascript" src="js/whichone.js"></script>
   </body>
 </html>
