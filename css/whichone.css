@@ -1,0 +1,7 @@
+body {
+  padding-top: 50px;
+}
+
+.handsontable col.rowHeader {
+    width: 140px;
+}
