@@ -1,0 +1,110 @@
+<table class="table" id="decisions_table">
+    <tr>
+        <td> </td>
+        <td>
+            <p> <a class="obj_name"> Objective 1 </a> </p>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <p> <a class="obj_name"> Objective 2 </a> </p>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <p> <a class="obj_name"> Objective 3 </a> </p>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <p> <a class="obj_name"> Objective 4 </a> </p>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <button type="button" class="btn btn-small btn-primary" name="newObj">
+                <span class="glyphicon glyphicon-plus-sign"></span>
+            </button>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p> <a class="alt_name"> Option 1 </a> </p>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td> </td>
+    </tr>
+    <tr>
+        <td>
+            <p> <a class="alt_name"> Option 2 </a> </p>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td> </td>
+    </tr>
+    <tr>
+        <td>
+            <p> <a class="alt_name"> Option 3 </a> </p>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td> </td>
+    </tr>
+    <tr>
+        <td>
+            <p> <a class="alt_name"> Option 4 </a> </p>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td>
+            <div class="rateit" data-rateit-resetable=false> </div>
+        </td>
+        <td> </td>
+    </tr>
+    <tr>
+        <td>
+            <button type="button" class="btn btn-small btn-primary" name="newAlt">
+            <span class="glyphicon glyphicon-plus-sign"></span>
+        </button>
+        </td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+    </tr>
+</table>
