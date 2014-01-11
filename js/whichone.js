@@ -108,6 +108,7 @@ function addDecision() {
     newDec.addAlternative();
     decisions.push( newDec );
     addDecisionToList( newDec );
+    saveToLocalStorge();
 }
 
 // utility functions
@@ -127,6 +128,7 @@ function updateObjectivesTable( decision ) {
         afterChange: function(changes) {
             updateAlternativesTable( decision );
             updateResultsTable( decision );
+            saveToLocalStorge();
         }
     });
 }
@@ -160,6 +162,7 @@ function updateAlternativesTable( decision ) {
                 }
             });
             updateResultsTable( decision );
+            saveToLocalStorge();
         }
     });
 }
@@ -205,6 +208,7 @@ function bindAddObjectiveButton() {
         var currentDecision = decisions[ currentDecisionIndex ];
         currentDecision.addObjective();
         updateAllTables( currentDecision );
+        saveToLocalStorge();
     });
 }
 
@@ -213,6 +217,7 @@ function bindAddAlternativeButton() {
         var currentDecision = decisions[ currentDecisionIndex ];
         currentDecision.addAlternative();
         updateAllTables( currentDecision );
+        saveToLocalStorge();
     });
 }
 
@@ -226,6 +231,15 @@ function bindDecisionListClick() {
             updateAllTables( decisions[currentDecisionIndex] );
             updateDecisionListActive();
         }
+    });
+}
+
+function bindResetButton() {
+    $('body').on('click', 'a[id=reset]', function() {
+        console.log("reset");
+        clearData();
+        loadDefaults();
+        setTimeout( function() { location.reload(); }, 100 );
     });
 }
 
@@ -255,7 +269,7 @@ function buildDecisionFromData( data ) {
     return builtDecision;
 }
 
-function handleData( data ) {
+function handleDecisionData( data ) {
     var builtDecision = buildDecisionFromData( data );
     decisions.push( builtDecision );
 
@@ -266,15 +280,36 @@ function handleData( data ) {
 
     addDecisionToList( builtDecision );
     updateDecisionListActive();
+    saveToLocalStorge();
 }
 
 function loadDefaultJSON( filename ) {
     $.getJSON(filename)
-        .done(handleData)
+        .done(handleDecisionData)
         .fail(function( jqxhr, textStatus, error ) {
                 var err = textStatus + ", " + error;
                     console.log( "Request Failed: " + err );
         });
+}
+
+function loadLocalStorageData() {
+    var stringData = localStorage.getItem("decisions");
+    if (stringData !== null) {
+        clearData();
+        _.each( JSON.parse(stringData), function(d) { handleDecisionData( d ); });
+    } else {
+        loadDefaults();
+    }
+}
+
+function saveToLocalStorge() {
+    localStorage.setItem( "decisions", JSON.stringify( decisions ) );
+}
+
+function clearData() {
+    decisions = [];
+    currentDecisionIndex = -1;
+    decisionCount = 0;
 }
 
 function loadDefaults() {
@@ -283,10 +318,12 @@ function loadDefaults() {
 }
 
 $(document).ready(function () {
-    loadDefaults();
+    //loadDefaults();
+    loadLocalStorageData();
 
     // register buttons
     bindAddObjectiveButton();
     bindAddAlternativeButton();
     bindDecisionListClick();
+    bindResetButton();
 });
