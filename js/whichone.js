@@ -160,12 +160,6 @@ function bindRemoveDecisionButton() {
     });
 }
 
-function bindRenameDecisionButton() {
-    $('body').on('click', 'a[id=renameDesc]', function() {
-        console.log( "Rename Decision");
-    });
-}
-
 function bindResetButton() {
     $('body').on('click', 'a[id=reset]', function() {
         clearData();
@@ -315,6 +309,17 @@ function clearEditor() {
 }
 
 function loadEditables() {
+    $('#renameDesc').editable({
+        value: currentDecision().name,
+        display: false,
+        position: "left",
+        url: function(data) {
+            currentDecision().name = data.value;
+            redrawDecisionList();
+            saveToLocalStorge();
+        }
+    });
+
     $(".obj_name").editable({
         placement: "bottom",
         url: function(data) {
@@ -382,7 +387,6 @@ $(document).ready(function () {
     bindDecisionListClick();
     bindAddDecisionButton();
     bindRemoveDecisionButton();
-    bindRenameDecisionButton();
     bindResetButton();
     bindSortButton();
 
