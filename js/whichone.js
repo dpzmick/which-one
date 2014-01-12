@@ -1,6 +1,6 @@
 // global vars
 decisions = [];
-currentDecisionIndex = -1;
+currentDecisionId = -1;
 decisionCount = 0;
 
 // Yum, parentHack!
@@ -113,19 +113,8 @@ function addDecision() {
     saveToLocalStorge();
 }
 
-
-// ******************************************************
-// decision list
-// ******************************************************
-function addDecisionToList( decision ) {
-    $('#decision_list').prepend(
-        "<li id=\"" + decision.id +"\"><a href=\"#\" id=\""
-        + decision.id +"\">" + decision.name + "</a></li>");
-}
-
-function updateDecisionListActive() {
-    $('#decision_list .active').removeClass('active');
-    $('#decision_list #' + currentDecisionIndex).addClass('active');
+function currentDecision() {
+    return _.find( decisions, function(d) { return d.id == currentDecisionId; })
 }
 
 // ******************************************************
@@ -133,32 +122,47 @@ function updateDecisionListActive() {
 // ******************************************************
 function bindAddObjectiveButton() {
     $('body').on('click', 'button[name=newObj]', function() {
-        var currentDecision = decisions[ currentDecisionIndex ];
-        currentDecision.addObjective();
-        makeEditor( decisions[currentDecisionIndex] );
+        currentDecision().addObjective();
+        makeEditor( currentDecision() );
         saveToLocalStorge();
     });
 }
 
 function bindAddAlternativeButton() {
     $('body').on('click', 'button[name=newAlt]', function() {
-        var currentDecision = decisions[ currentDecisionIndex ];
-        currentDecision.addAlternative();
-        makeEditor( decisions[currentDecisionIndex] );
+        currentDecision().addAlternative();
+        makeEditor( currentDecision() );
         saveToLocalStorge();
     });
 }
 
 function bindDecisionListClick() {
     $('#decision_list').on( 'click', 'a', function(link) {
-        var tid = link.target.id;
-        if (tid === 'add') {
-            addDecision();
-        } else {
-            currentDecisionIndex = parseInt( link.target.id );
-            updateDecisionListActive();
-            makeEditor( decisions[currentDecisionIndex] );
-        }
+        currentDecisionId = parseInt( link.target.id );
+        updateDecisionListActive();
+        makeEditor( currentDecision() );
+    });
+}
+
+function bindAddDecisionButton() {
+    $('body').on('click', 'a[id=addDesc]', function() {
+        addDecision();
+    });
+}
+
+function bindRemoveDecisionButton() {
+    $('body').on('click', 'a[id=removeDesc]', function() {
+        decisions = _.without( decisions, currentDecision() );
+        currentDecisionId = decisions[0].id;
+        redrawDecisionList();
+        saveToLocalStorge();
+        makeEditor( currentDecision() );
+    });
+}
+
+function bindRenameDecisionButton() {
+    $('body').on('click', 'a[id=renameDesc]', function() {
+        console.log( "Rename Decision");
     });
 }
 
@@ -172,8 +176,8 @@ function bindResetButton() {
 
 function bindSortButton() {
     $('body').on('click', 'button[name=sort]', function() {
-        decisions[ currentDecisionIndex ].sortAlternatives();
-        makeEditor( decisions[ currentDecisionIndex ] );
+        currentDecision().sortAlternatives();
+        makeEditor( currentDecision() );
         saveToLocalStorge();
     });
 }
@@ -208,8 +212,8 @@ function handleDecisionData( data ) {
     var builtDecision = buildDecisionFromData( data );
     decisions.push( builtDecision );
 
-    if (currentDecisionIndex === -1) {
-        currentDecisionIndex = 0;
+    if (currentDecisionId === -1) {
+        currentDecisionId = 0;
     }
 
     addDecisionToList( builtDecision );
@@ -242,13 +246,34 @@ function saveToLocalStorge() {
 
 function clearData() {
     decisions = [];
-    currentDecisionIndex = -1;
+    currentDecisionId = -1;
     decisionCount = 0;
 }
 
 function loadDefaults() {
     loadDefaultJSON( 'defaults/college.json' );
     loadDefaultJSON( 'defaults/job.json' );
+}
+
+// ******************************************************
+// Decision list
+// ******************************************************
+function addDecisionToList( decision ) {
+    $('#decision_list').prepend(
+        '<li id="' + decision.id + '">'
+        + '<a href="#" id="'+ decision.id + '">' + decision.name
+        + '</a></li>');
+}
+
+function updateDecisionListActive() {
+    $('#decision_list .active').removeClass('active');
+    $('#decision_list #' + currentDecisionId).addClass('active');
+}
+
+function redrawDecisionList() {
+    $('#decision_list').empty();
+    _.each( decisions, addDecisionToList );
+    updateDecisionListActive();
 }
 
 // ******************************************************
@@ -294,7 +319,7 @@ function loadEditables() {
         placement: "bottom",
         url: function(data) {
             var id = parseInt(data.name);
-            var obj = decisions[ currentDecisionIndex ].findObjectiveById( id );
+            var obj = currentDecision().findObjectiveById( id );
             obj.name = data.value;
             saveToLocalStorge();
         }
@@ -302,7 +327,8 @@ function loadEditables() {
     $(".alt_name").editable({
         placement: "right",
         url: function(data) {
-            var alt = decisions[ currentDecisionIndex ].findAlterativeById( id );
+            var id = parseInt(data.name);
+            var alt = currentDecision().findAlterativeById( id );
             alt.name = data.value;
             saveToLocalStorge();
         }
@@ -312,7 +338,7 @@ function loadEditables() {
 // TODO clean this up
 function loadStars() {
     // set up for objectives
-    _.each( decisions[ currentDecisionIndex ].objectives, function (obj) {
+    _.each( currentDecision().objectives, function (obj) {
         $('#' + obj.id + '.obj_weight').rateit({
             "resetable" : false,
             "step": 1,
@@ -321,14 +347,14 @@ function loadStars() {
     });
     $('.obj_weight').bind( 'rated', function (event, value) {
         var id = parseInt( event.currentTarget.id );
-        decisions[ currentDecisionIndex ].findObjectiveById( id ).weight = parseInt( value );
+        currentDecision().findObjectiveById( id ).weight = parseInt( value );
         saveToLocalStorge();
     });
 
 
     // set up for rankings
-    _.each( decisions[ currentDecisionIndex ].alternatives, function(alt) {
-        _.each( decisions[ currentDecisionIndex ].objectives, function(obj) {
+    _.each( currentDecision().alternatives, function(alt) {
+        _.each( currentDecision().objectives, function(obj) {
             $('#' + obj.id + '.' + alt.id + '_ratings').rateit({
                 "resetable": false,
                 "step": 1,
@@ -350,11 +376,15 @@ $(document).ready(function () {
     loadLocalStorageData();
 
     // bind buttons
+    // hmm, this doesn't quite scale does it
     bindAddObjectiveButton();
     bindAddAlternativeButton();
     bindDecisionListClick();
+    bindAddDecisionButton();
+    bindRemoveDecisionButton();
+    bindRenameDecisionButton();
     bindResetButton();
     bindSortButton();
 
-    makeEditor( decisions[currentDecisionIndex] );
+    makeEditor( currentDecision() );
 });
