@@ -3,6 +3,7 @@ decisions = [];
 currentDecisionIndex = -1;
 decisionCount = 0;
 
+// Yum, parentHack!
 function decision( name, objectives, alternatives ) {
     // PRIVATE MEMBERS
     this.objCounter = 0;
@@ -48,7 +49,20 @@ function decision( name, objectives, alternatives ) {
             }
             return this.ratings[objective.id];
         }
+
+        this.score = function() {
+            var anotherHack = this; // TODO learn javascript
+            return _.reduce( parentHack.objectives, function( sum, obj ) {
+                return sum + anotherHack.ratingFor(obj) * obj.weight;
+            }, 0);
+        }
     }
+
+    this.sortAlternatives = function() {
+        this.alternatives.sort( function( alt1, alt2 ) { return alt1.score() < alt2.score(); } );
+        saveToLocalStorge();
+    }
+    
     // ADDING NEW THINGS
     this.addObjective = function( objName, objWeight ) {
         var newObj = new objective( objName, objWeight, this )
@@ -88,11 +102,6 @@ function decision( name, objectives, alternatives ) {
         }
     }
 
-}
-
-// utility functions
-function objComp(obj1, obj2) {
-    return obj1.id > obj2.id;
 }
 
 function addDecision() {
@@ -155,10 +164,17 @@ function bindDecisionListClick() {
 
 function bindResetButton() {
     $('body').on('click', 'a[id=reset]', function() {
-        console.log("reset");
         clearData();
         loadDefaults();
         setTimeout( function() { location.reload(); }, 100 );
+    });
+}
+
+function bindSortButton() {
+    $('body').on('click', 'button[name=sort]', function() {
+        decisions[ currentDecisionIndex ].sortAlternatives();
+        makeEditor( decisions[ currentDecisionIndex ] );
+        saveToLocalStorge();
     });
 }
 
@@ -245,7 +261,7 @@ function makeEditor( decision ) {
     _.each( decision.objectives, function(obj) {
         str += '<td>'
             + '<p> <a class="obj_name" id="' + obj.id + '">' + obj.name + '</a> </p>'
-            + '<div class="rateit"> </div>'
+            + '<div class="obj_weight" id="' + obj.id + '"> </div>'
             + '</td>';
     });
     str += "</tr>";
@@ -256,7 +272,7 @@ function makeEditor( decision ) {
     _.each( decision.alternatives, function(alt) {
         str += '<td> <a class="alt_name" id="' + alt.id + '">' + alt.name + '</a> </td>';
         _.each( decision.objectives, function( obj ) {
-            str += '<td> <div class="rateit"> </div> </td>';
+            str += '<td> <div class="' + alt.id + '_ratings" id="' + obj.id +'"> </div> </td>';
         });
         str += '</tr> <tr>';
     });
@@ -267,7 +283,6 @@ function makeEditor( decision ) {
     // reload the other stuff
     loadEditables();
     loadStars();
-    
 }
 
 function clearEditor() {
@@ -287,8 +302,6 @@ function loadEditables() {
     $(".alt_name").editable({
         placement: "right",
         url: function(data) {
-            console.log(data);
-            var id = parseInt(data.name);
             var alt = decisions[ currentDecisionIndex ].findAlterativeById( id );
             alt.name = data.value;
             saveToLocalStorge();
@@ -296,8 +309,37 @@ function loadEditables() {
     });
 }
 
+// TODO clean this up
 function loadStars() {
-    $('.rateit').rateit({ "resetable": false });
+    // set up for objectives
+    _.each( decisions[ currentDecisionIndex ].objectives, function (obj) {
+        $('#' + obj.id + '.obj_weight').rateit({
+            "resetable" : false,
+            "step": 1,
+            "value": obj.weight
+        });
+    });
+    $('.obj_weight').bind( 'rated', function (event, value) {
+        var id = parseInt( event.currentTarget.id );
+        decisions[ currentDecisionIndex ].findObjectiveById( id ).weight = parseInt( value );
+        saveToLocalStorge();
+    });
+
+
+    // set up for rankings
+    _.each( decisions[ currentDecisionIndex ].alternatives, function(alt) {
+        _.each( decisions[ currentDecisionIndex ].objectives, function(obj) {
+            $('#' + obj.id + '.' + alt.id + '_ratings').rateit({
+                "resetable": false,
+                "step": 1,
+                "value": alt.ratingFor(obj)
+            });
+            $('#' + obj.id + '.' + alt.id + '_ratings').bind( 'rated', function( event, value ) {
+                alt.rate(obj, parseInt(value));
+                saveToLocalStorge();
+            });
+        });
+    });
 }
 
 // ******************************************************
@@ -312,6 +354,7 @@ $(document).ready(function () {
     bindAddAlternativeButton();
     bindDecisionListClick();
     bindResetButton();
+    bindSortButton();
 
     makeEditor( decisions[currentDecisionIndex] );
 });

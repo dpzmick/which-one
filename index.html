@@ -59,7 +59,7 @@
 
     <div class="container">
         <div class="row"> <!-- Main Row -->
-            <div class="col-sm-2">
+            <div class="col-md-2">
                 <h3> My Decisions </h3>
                 <ul class="nav nav-pills nav-stacked" id="decision_list">
                     <li>
@@ -70,7 +70,10 @@
                     </li>
                 </ul>
             </div>
-            <div class="col-sm-10">
+
+            <br />
+
+            <div class="col-md-10">
                 <div class="row">
                     <button type="button" class="btn btn-default" name="newObj">
                         <span class="glyphicon glyphicon-plus-sign"></span>
@@ -80,11 +83,17 @@
                         <span class="glyphicon glyphicon-plus-sign"></span>
                         Add Alternative
                     </button>
+                    <button type="button" class="btn btn-default" name="sort">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                        Reorder Options
+                    </button>
                 </div>
 
+                <br />
+
                 <div class="row text-center">
-                    <div class="col-sm-10">
-                        <table class="table" id="decision_editor">
+                    <div class="col-md-10">
+                        <table class="table table-hover" id="decision_editor">
                             <tbody>
                             </tbody>
                         </table>
