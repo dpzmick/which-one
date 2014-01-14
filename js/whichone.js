@@ -42,6 +42,10 @@ function decision( name, objectives, alternatives ) {
         this.rate = function( objective, score ) {
             this.ratings[objective.id] = score;
         }
+
+        this.removeRatingFor = function( objective ) {
+            this.ratings[objective.id] = undefined;
+        }
     
         this.ratingFor = function( objective ) {
             if (typeof this.ratings[objective.id] === 'undefined') {
@@ -88,7 +92,6 @@ function decision( name, objectives, alternatives ) {
     // for loading data
     this.addObjectiveWithId = function( objName, objWeight, objId ){
         this.addObjective(objName, objWeight).id = objId;
-        this.objCounter = this.objCounter - 1; // offset the creation
         if (objId > this.objCounter) {
             this.objCounter = objId + 1;
         }
@@ -124,6 +127,7 @@ function bindAddObjectiveButton() {
     $('body').on('click', 'button[name=newObj]', function() {
         currentDecision().addObjective();
         makeEditor( currentDecision() );
+        buildObjectiveDropdown();
         drawPlot(currentDecision());
         saveToLocalStorge();
     });
@@ -259,7 +263,7 @@ function loadDefaults() {
 // Decision list
 // ******************************************************
 function addDecisionToList( decision ) {
-    $('#decision_list').prepend(
+    $('#decision_list').append(
         '<li id="' + decision.id + '">'
         + '<a href="#" id="'+ decision.id + '">' + decision.name
         + '</a></li>');
@@ -274,6 +278,57 @@ function redrawDecisionList() {
     $('#decision_list').empty();
     _.each( decisions, addDecisionToList );
     updateDecisionListActive();
+}
+
+
+// ******************************************************
+// Objective Removal Dropdown
+// ******************************************************
+function buildObjectiveDropdown() {
+    $('#objMenu').empty();
+    _.each( currentDecision().objectives, function( obj ) {
+        $('#objMenu').append('<li><a id="' + obj.id + '">' + obj.name + '</a></li>');
+    });
+}
+
+function bindObjRemoveClick() {
+    $('#objMenu').on( 'click', 'a', function(link) {
+        var id = parseInt( link.target.id );
+        var obj = currentDecision().findObjectiveById( id );
+        _.each( currentDecision().alternatives, function(alt) {
+            alt.removeRatingFor( obj );
+        });
+        currentDecision().objectives = _.without(
+            currentDecision().objectives,
+            currentDecision().findObjectiveById( id )
+        );
+        makeEditor( currentDecision() );
+        drawPlot( currentDecision() );
+        buildObjectiveDropdown();
+    });
+}
+
+
+// ******************************************************
+// Option Removal Dropdown
+// ******************************************************
+function buildOptionsDropdown() {
+    _.each( currentDecision().alternatives, function( alt ) {
+        $('#altMenu').append('<li><a id="' + alt.id + '">' + alt.name + '</a></li>');
+    });
+}
+
+function bindAltRemoveClick() {
+    $('#altMenu').on( 'click', 'a', function(link) {
+        var id = parseInt( link.target.id );
+        currentDecision().alternatives = _.without(
+            currentDecision().alternatives,
+            currentDecision().findAlterativeById( id )
+        );
+        makeEditor( currentDecision() );
+        drawPlot( currentDecision() );
+        buildOptionsDropdown();
+    });
 }
 
 // ******************************************************
@@ -427,8 +482,12 @@ $(document).ready(function () {
     bindRemoveDecisionButton();
     bindResetButton();
     bindSortButton();
+    bindObjRemoveClick();
+    bindAltRemoveClick();
 
+    // do UI stuff
     makeEditor( currentDecision() );
-    
     drawPlot(currentDecision());
+    buildObjectiveDropdown();
+    buildOptionsDropdown();
 });
