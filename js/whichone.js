@@ -276,6 +276,7 @@ function redrawDecisionList() {
 // ******************************************************
 function makeEditor( decision ) {
     clearEditor();
+    currentDecision().sortAlternatives();
     // add objectives row
     var str ="<tr> <td> </td>";
     _.each( decision.objectives, function(obj) {
