@@ -208,6 +208,7 @@ function handleDecisionData( data ) {
 
     if (currentDecisionId === -1) {
         currentDecisionId = 0;
+        makeEditor( currentDecision() );
     }
 
     addDecisionToList( builtDecision );
