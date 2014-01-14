@@ -445,10 +445,11 @@ function drawPlot( decision ) {
     t = _.map( decision.alternatives, function(alt, i) { return [i, alt.name]; } );
     data = [{
         data: d,
+        color: '#5bc0de',
         bars: {
             show: true,
             align: 'center',
-            barWidth: 1
+            barWidth: 1,
         }
     }];
 
