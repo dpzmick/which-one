@@ -124,6 +124,7 @@ function bindAddObjectiveButton() {
     $('body').on('click', 'button[name=newObj]', function() {
         currentDecision().addObjective();
         makeEditor( currentDecision() );
+        drawPlot(currentDecision());
         saveToLocalStorge();
     });
 }
@@ -141,6 +142,7 @@ function bindDecisionListClick() {
         currentDecisionId = parseInt( link.target.id );
         updateDecisionListActive();
         makeEditor( currentDecision() );
+        drawPlot(currentDecision());
     });
 }
 
@@ -157,6 +159,7 @@ function bindRemoveDecisionButton() {
         redrawDecisionList();
         saveToLocalStorge();
         makeEditor( currentDecision() );
+        drawPlot(currentDecision());
     });
 }
 
@@ -172,6 +175,7 @@ function bindSortButton() {
     $('body').on('click', 'button[name=sort]', function() {
         currentDecision().sortAlternatives();
         makeEditor( currentDecision() );
+        drawPlot(currentDecision());
         saveToLocalStorge();
     });
 }
@@ -209,6 +213,7 @@ function handleDecisionData( data ) {
     if (currentDecisionId === -1) {
         currentDecisionId = 0;
         makeEditor( currentDecision() );
+        drawPlot(currentDecision());
     }
 
     addDecisionToList( builtDecision );
@@ -355,6 +360,7 @@ function loadStars() {
     $('.obj_weight').bind( 'rated', function (event, value) {
         var id = parseInt( event.currentTarget.id );
         currentDecision().findObjectiveById( id ).weight = parseInt( value );
+        drawPlot( currentDecision() );
         saveToLocalStorge();
     });
 
@@ -369,10 +375,40 @@ function loadStars() {
             });
             $('#' + obj.id + '.' + alt.id + '_ratings').bind( 'rated', function( event, value ) {
                 alt.rate(obj, parseInt(value));
+                drawPlot( currentDecision() );
                 saveToLocalStorge();
             });
         });
     });
+}
+
+// ******************************************************
+// Plot
+// ******************************************************
+function drawPlot( decision ) {
+    d = _.map( decision.alternatives, function(alt, i) { return [i, alt.score()]; } );
+    t = _.map( decision.alternatives, function(alt, i) { return [i, alt.name]; } );
+    data = [{
+        data: d,
+        bars: {
+            show: true,
+            align: 'center',
+            barWidth: 1
+        }
+    }];
+
+    options = {
+        xaxis: { ticks: t },
+        yaxis: {
+            min: 0,
+            // use d to avoid calling score again (slow)
+            max: _.max( d, function(e) { return e[1] } )[1] + 20,
+            ticks: []
+        }
+    }
+
+    $.plot( $("#altPlot"), data, options);
+    
 }
 
 // ******************************************************
@@ -393,4 +429,6 @@ $(document).ready(function () {
     bindSortButton();
 
     makeEditor( currentDecision() );
+    
+    drawPlot(currentDecision());
 });
