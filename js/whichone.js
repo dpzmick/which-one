@@ -59,7 +59,7 @@ function decision( name, objectives, alternatives ) {
     }
 
     this.sortAlternatives = function() {
-        this.alternatives.sort( function( alt1, alt2 ) { return alt1.score() < alt2.score(); } );
+        this.alternatives.sort( function( alt1, alt2 ) { return alt2.score() - alt1.score(); } );
         saveToLocalStorge();
     }
     
