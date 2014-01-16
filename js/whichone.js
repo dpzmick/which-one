@@ -147,6 +147,8 @@ function bindDecisionListClick() {
         updateDecisionListActive();
         makeEditor( currentDecision() );
         drawPlot(currentDecision());
+        buildObjectiveDropdown();
+        buildOptionsDropdown();
     });
 }
 
@@ -163,6 +165,8 @@ function bindRemoveDecisionButton() {
         redrawDecisionList();
         saveToLocalStorge();
         makeEditor( currentDecision() );
+        buildObjectiveDropdown();
+        buildOptionsDropdown();
         drawPlot(currentDecision());
     });
 }
@@ -179,6 +183,7 @@ function bindSortButton() {
     $('body').on('click', 'button[name=sort]', function() {
         currentDecision().sortAlternatives();
         makeEditor( currentDecision() );
+        buildOptionsDropdown();
         drawPlot(currentDecision());
         saveToLocalStorge();
     });
@@ -313,6 +318,7 @@ function bindObjRemoveClick() {
 // Option Removal Dropdown
 // ******************************************************
 function buildOptionsDropdown() {
+    $('#altMenu').empty();
     _.each( currentDecision().alternatives, function( alt ) {
         $('#altMenu').append('<li><a id="' + alt.id + '">' + alt.name + '</a></li>');
     });
@@ -445,7 +451,7 @@ function drawPlot( decision ) {
     t = _.map( decision.alternatives, function(alt, i) { return [i, alt.name]; } );
     data = [{
         data: d,
-        color: '#5bc0de',
+        color: '#5cb85c',
         bars: {
             show: true,
             align: 'center',
@@ -491,4 +497,6 @@ $(document).ready(function () {
     drawPlot(currentDecision());
     buildObjectiveDropdown();
     buildOptionsDropdown();
+
+    $('.rating-group').button()
 });
