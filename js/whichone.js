@@ -189,6 +189,36 @@ function bindSortButton() {
     });
 }
 
+function bindObjRemoveClick() {
+    $('#objMenu').on( 'click', 'a', function(link) {
+        var id = parseInt( link.target.id );
+        var obj = currentDecision().findObjectiveById( id );
+        _.each( currentDecision().alternatives, function(alt) {
+            alt.removeRatingFor( obj );
+        });
+        currentDecision().objectives = _.without(
+            currentDecision().objectives,
+            currentDecision().findObjectiveById( id )
+        );
+        makeEditor( currentDecision() );
+        drawPlot( currentDecision() );
+        buildObjectiveDropdown();
+    });
+}
+
+function bindAltRemoveClick() {
+    $('#altMenu').on( 'click', 'a', function(link) {
+        var id = parseInt( link.target.id );
+        currentDecision().alternatives = _.without(
+            currentDecision().alternatives,
+            currentDecision().findAlterativeById( id )
+        );
+        makeEditor( currentDecision() );
+        drawPlot( currentDecision() );
+        buildOptionsDropdown();
+    });
+}
+
 // ******************************************************
 // Data and storage
 // ******************************************************
@@ -296,24 +326,6 @@ function buildObjectiveDropdown() {
     });
 }
 
-function bindObjRemoveClick() {
-    $('#objMenu').on( 'click', 'a', function(link) {
-        var id = parseInt( link.target.id );
-        var obj = currentDecision().findObjectiveById( id );
-        _.each( currentDecision().alternatives, function(alt) {
-            alt.removeRatingFor( obj );
-        });
-        currentDecision().objectives = _.without(
-            currentDecision().objectives,
-            currentDecision().findObjectiveById( id )
-        );
-        makeEditor( currentDecision() );
-        drawPlot( currentDecision() );
-        buildObjectiveDropdown();
-    });
-}
-
-
 // ******************************************************
 // Option Removal Dropdown
 // ******************************************************
@@ -321,19 +333,6 @@ function buildOptionsDropdown() {
     $('#altMenu').empty();
     _.each( currentDecision().alternatives, function( alt ) {
         $('#altMenu').append('<li><a id="' + alt.id + '">' + alt.name + '</a></li>');
-    });
-}
-
-function bindAltRemoveClick() {
-    $('#altMenu').on( 'click', 'a', function(link) {
-        var id = parseInt( link.target.id );
-        currentDecision().alternatives = _.without(
-            currentDecision().alternatives,
-            currentDecision().findAlterativeById( id )
-        );
-        makeEditor( currentDecision() );
-        drawPlot( currentDecision() );
-        buildOptionsDropdown();
     });
 }
 
@@ -359,7 +358,7 @@ function makeEditor( decision ) {
     _.each( decision.alternatives, function(alt) {
         str += '<td> <a class="alt_name" id="' + alt.id + '">' + alt.name + '</a> </td>';
         _.each( decision.objectives, function( obj ) {
-            str += '<td> <div class="' + alt.id + '_ratings" id="' + obj.id +'"> </div> </td>';
+            str += '<td>' + raterString(alt, obj) + '</td>';
         });
         str += '</tr> <tr>';
     });
@@ -370,6 +369,7 @@ function makeEditor( decision ) {
     // reload the other stuff
     loadEditables();
     loadStars();
+    makeRaters();
 }
 
 function clearEditor() {
@@ -408,7 +408,6 @@ function loadEditables() {
     });
 }
 
-// TODO clean this up
 function loadStars() {
     // set up for objectives
     _.each( currentDecision().objectives, function (obj) {
@@ -424,18 +423,35 @@ function loadStars() {
         drawPlot( currentDecision() );
         saveToLocalStorge();
     });
+}
 
+function raterString( alt, obj ) {
+    return '<select class="rater ' + alt.id + '_ratings" id="' + obj.id + '">'
+                + '<option value="-3" data-icon="icon-emo-unhappy"></option>'
+                + '<option value="-1" data-icon="icon-emo-displeased"></option>'
+                + '<option value="0" data-icon="icon-emo-sleep"></option>'
+                + '<option value="1" data-icon="icon-emo-happy"></option>'
+                + '<option value="3" data-icon="icon-emo-grin"></option>'
+            + '</select>';
+}
 
-    // set up for rankings
+function makeRaters() {
+    function formatter(state) {
+        var originalOption = state.element;
+        return '<span class="' + $(originalOption).data('icon') + '"></span>';
+    }
+
+    $('.rater').select2({
+        formatResult: formatter,
+        formatSelection: formatter,
+        escapeMarkup: function(m) { return m; }
+    });
+
     _.each( currentDecision().alternatives, function(alt) {
         _.each( currentDecision().objectives, function(obj) {
-            $('#' + obj.id + '.' + alt.id + '_ratings').rateit({
-                "resetable": false,
-                "step": 1,
-                "value": alt.ratingFor(obj)
-            });
-            $('#' + obj.id + '.' + alt.id + '_ratings').bind( 'rated', function( event, value ) {
-                alt.rate(obj, parseInt(value));
+            $('#' + obj.id + '.' + alt.id + '_ratings').select2("val", alt.ratingFor(obj));
+            $('#' + obj.id + '.' + alt.id + '_ratings').on('change', function(event) {
+                alt.rate( obj, parseInt( event.val ));
                 drawPlot( currentDecision() );
                 saveToLocalStorge();
             });
@@ -462,10 +478,9 @@ function drawPlot( decision ) {
     options = {
         xaxis: { ticks: t },
         yaxis: {
-            min: 0,
             // use d to avoid calling score again (slow)
-            max: _.max( d, function(e) { return e[1] } )[1] + 20,
-            ticks: []
+            max: _.max( d, function(e) { return e[1] } )[1] + 5,
+            ticks: [0]
         }
     }
 
@@ -497,6 +512,4 @@ $(document).ready(function () {
     drawPlot(currentDecision());
     buildObjectiveDropdown();
     buildOptionsDropdown();
-
-    $('.rating-group').button()
 });
