@@ -29,6 +29,47 @@ function decision( name, objectives, alternatives ) {
         this.id = parentHack.objCounter++;
         this.name = objName;
         this.weight = objWeight;
+
+        this.impact = function() {
+            // iterate through possible values for an objective's weight
+            // for each weight tried, find the average change in alternative's
+            // scores
+
+            //// get a list of possible values
+            //var possibles = [1,2,3,4,5];
+            //possibles = _.without( possibles, this.weight );
+
+            // store original weight
+            //var orig_weight = this.weight;
+            //var orig_scores = _.map( parentHack.alternatives, function(alt) { return alt.score(); } );
+
+
+            //// for each possible score, compute the average delta alt score squared
+            //var avg_dsq = [];
+            //_.each( possibles, function(p) {
+            //    this.weight = p;
+            //});
+
+            // just kidding not doing that yet
+            // see how much the scores change if you the weight of the
+            // objective becomes zero
+            // store original weight
+            var orig_weight = this.weight;
+            var orig_scores = _.map( parentHack.alternatives, function(alt) { return alt.score(); } );
+
+            this.weight = 0;
+            var new_scores = _.map( parentHack.alternatives, function(alt) { return alt.score(); } );
+
+
+            var diffs = _.map( _.zip(orig_scores, new_scores), function( e ) {
+                return Math.pow( e[0] - e[1], 2 );
+            });
+
+            this.weight = orig_weight;
+
+            var sum = _.reduce( diffs, function(memo, num) { return memo + num; });
+            return sum / (diffs.length);
+        }
     }
 
     function alternative( altName, parentHack ) {
@@ -128,7 +169,7 @@ function bindAddObjectiveButton() {
         currentDecision().addObjective();
         makeEditor( currentDecision() );
         buildObjectiveDropdown();
-        drawPlot(currentDecision());
+        drawPlots(currentDecision());
         saveToLocalStorge();
     });
 }
@@ -146,7 +187,7 @@ function bindDecisionListClick() {
         currentDecisionId = parseInt( link.target.id );
         updateDecisionListActive();
         makeEditor( currentDecision() );
-        drawPlot(currentDecision());
+        drawPlots(currentDecision());
         buildObjectiveDropdown();
         buildOptionsDropdown();
     });
@@ -167,7 +208,7 @@ function bindRemoveDecisionButton() {
         makeEditor( currentDecision() );
         buildObjectiveDropdown();
         buildOptionsDropdown();
-        drawPlot(currentDecision());
+        drawPlots(currentDecision());
     });
 }
 
@@ -184,7 +225,7 @@ function bindSortButton() {
         currentDecision().sortAlternatives();
         makeEditor( currentDecision() );
         buildOptionsDropdown();
-        drawPlot(currentDecision());
+        drawPlots(currentDecision());
         saveToLocalStorge();
     });
 }
@@ -201,7 +242,7 @@ function bindObjRemoveClick() {
             currentDecision().findObjectiveById( id )
         );
         makeEditor( currentDecision() );
-        drawPlot( currentDecision() );
+        drawPlots( currentDecision() );
         buildObjectiveDropdown();
     });
 }
@@ -214,7 +255,7 @@ function bindAltRemoveClick() {
             currentDecision().findAlterativeById( id )
         );
         makeEditor( currentDecision() );
-        drawPlot( currentDecision() );
+        drawPlots( currentDecision() );
         buildOptionsDropdown();
     });
 }
@@ -252,7 +293,7 @@ function handleDecisionData( data ) {
     if (currentDecisionId === -1) {
         currentDecisionId = 0;
         makeEditor( currentDecision() );
-        drawPlot(currentDecision());
+        drawPlots(currentDecision());
     }
 
     addDecisionToList( builtDecision );
@@ -420,7 +461,7 @@ function loadStars() {
     $('.obj_weight').bind( 'rated', function (event, value) {
         var id = parseInt( event.currentTarget.id );
         currentDecision().findObjectiveById( id ).weight = parseInt( value );
-        drawPlot( currentDecision() );
+        drawPlots( currentDecision() );
         saveToLocalStorge();
     });
 }
@@ -452,7 +493,7 @@ function makeRaters() {
             $('#' + obj.id + '.' + alt.id + '_ratings').select2("val", alt.ratingFor(obj));
             $('#' + obj.id + '.' + alt.id + '_ratings').on('change', function(event) {
                 alt.rate( obj, parseInt( event.val ));
-                drawPlot( currentDecision() );
+                drawPlots( currentDecision() );
                 saveToLocalStorge();
             });
         });
@@ -460,32 +501,83 @@ function makeRaters() {
 }
 
 // ******************************************************
-// Plot
+// Plots
 // ******************************************************
-function drawPlot( decision ) {
-    d = _.map( decision.alternatives, function(alt, i) { return [i, alt.score()]; } );
-    t = _.map( decision.alternatives, function(alt, i) { return [i, alt.name]; } );
-    data = [{
-        data: d,
-        color: '#5cb85c',
-        bars: {
-            show: true,
-            align: 'center',
-            barWidth: 1,
-        }
-    }];
+function drawPlots( decision ) {
+    drawAltPlot( decision );
+    drawImpactPlot( decision );
+}
 
-    options = {
-        xaxis: { ticks: t },
-        yaxis: {
-            // use d to avoid calling score again (slow)
-            max: _.max( d, function(e) { return e[1] } )[1] + 5,
-            ticks: [0]
+function drawAltPlot( decision ) {
+    $('#altPlot').highcharts({
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: 'Relative Scores'
+        },
+        xAxis: {
+            categories: _.map( decision.alternatives, function(alt) { return alt.name; } ),
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            title: {
+                text: null
+            },
+            labels: {
+                formatter: function() { return ''; }
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        series: [{
+            name: 'Alternatives',
+            data: _.map( decision.alternatives, function(alt) { return alt.score(); } ),
+            animation: false
+        }],
+        credits: {
+            enabled: false
         }
-    }
+    });
+}
 
-    $.plot( $("#altPlot"), data, options);
-    
+function drawImpactPlot( decision ) {
+    $('#impactPlot').highcharts({
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: 'Objective Impact'
+        },
+        xAxis: {
+            categories: _.map( decision.objectives, function(obj) { return obj.name; } ),
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            title: {
+                text: null
+            },
+            labels: {
+                formatter: function() { return ''; }
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        series: [{
+            name: 'Alternatives',
+            data: _.map( decision.objectives, function(obj) { return obj.impact(); } ),
+            animation: false
+        }],
+        credits: {
+            enabled: false
+        }
+    });
 }
 
 // ******************************************************
@@ -509,7 +601,7 @@ $(document).ready(function () {
 
     // do UI stuff
     makeEditor( currentDecision() );
-    drawPlot(currentDecision());
+    drawPlots(currentDecision());
     buildObjectiveDropdown();
     buildOptionsDropdown();
 });
