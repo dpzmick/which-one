@@ -484,7 +484,6 @@ function makeRaters() {
 function drawPlots( decision ) {
     drawAltPlot( decision );
     drawImpactPlot( decision );
-    drawImpactPlot2( decision );
 }
 
 function drawAltPlot( decision ) {
