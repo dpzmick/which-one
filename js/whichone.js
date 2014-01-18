@@ -31,44 +31,22 @@ function decision( name, objectives, alternatives ) {
         this.weight = objWeight;
 
         this.impact = function() {
-            // iterate through possible values for an objective's weight
-            // for each weight tried, find the average change in alternative's
-            // scores
-
-            //// get a list of possible values
-            //var possibles = [1,2,3,4,5];
-            //possibles = _.without( possibles, this.weight );
-
-            // store original weight
-            //var orig_weight = this.weight;
-            //var orig_scores = _.map( parentHack.alternatives, function(alt) { return alt.score(); } );
-
-
-            //// for each possible score, compute the average delta alt score squared
-            //var avg_dsq = [];
-            //_.each( possibles, function(p) {
-            //    this.weight = p;
-            //});
-
-            // just kidding not doing that yet
-            // see how much the scores change if you the weight of the
-            // objective becomes zero
-            // store original weight
-            var orig_weight = this.weight;
-            var orig_scores = _.map( parentHack.alternatives, function(alt) { return alt.score(); } );
-
-            this.weight = 0;
-            var new_scores = _.map( parentHack.alternatives, function(alt) { return alt.score(); } );
-
-
-            var diffs = _.map( _.zip(orig_scores, new_scores), function( e ) {
-                return Math.pow( e[0] - e[1], 2 );
+            var anotherHack = this
+            var compound = _.map( parentHack.alternatives, function(alt) {
+                return alt.ratingFor( anotherHack ) * anotherHack.weight;
             });
 
-            this.weight = orig_weight;
+            var variance = function( lst ) {
+                var avg = _.reduce( lst, function(memo, num) { return memo + num; } ) / lst.length;
+                var result = 0;
+                _.each(lst, function(e) {
+                    var tmp = e - avg;
+                    result += tmp * tmp;
+                });
+                return result;
+            }
 
-            var sum = _.reduce( diffs, function(memo, num) { return memo + num; });
-            return sum / (diffs.length);
+            return variance(compound);
         }
     }
 
@@ -506,6 +484,7 @@ function makeRaters() {
 function drawPlots( decision ) {
     drawAltPlot( decision );
     drawImpactPlot( decision );
+    drawImpactPlot2( decision );
 }
 
 function drawAltPlot( decision ) {
