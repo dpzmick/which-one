@@ -461,9 +461,10 @@ function makeRaters() {
     }
 
     $('.rater').select2({
+        minimumResultsForSearch: -1,
         formatResult: formatter,
         formatSelection: formatter,
-        escapeMarkup: function(m) { return m; }
+        escapeMarkup: function(m) { return m; },
     });
 
     _.each( currentDecision().alternatives, function(alt) {
