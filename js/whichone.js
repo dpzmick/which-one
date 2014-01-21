@@ -413,6 +413,7 @@ function loadEditables() {
             var id = parseInt(data.name);
             var obj = currentDecision().findObjectiveById( id );
             obj.name = data.value;
+            buildObjectiveDropdown();
             saveToLocalStorge();
         }
     });
@@ -422,6 +423,7 @@ function loadEditables() {
             var id = parseInt(data.name);
             var alt = currentDecision().findAlterativeById( id );
             alt.name = data.value;
+            buildOptionsDropdown();
             saveToLocalStorge();
         }
     });
