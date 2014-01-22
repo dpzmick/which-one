@@ -448,11 +448,11 @@ function loadStars() {
 
 function raterString( alt, obj ) {
     return '<select class="rater ' + alt.id + '_ratings" id="' + obj.id + '">'
-                + '<option value="-3" data-icon="icon-emo-unhappy"></option>'
-                + '<option value="-1" data-icon="icon-emo-displeased"></option>'
-                + '<option value="0" data-icon="icon-emo-sleep"></option>'
-                + '<option value="1" data-icon="icon-emo-happy"></option>'
                 + '<option value="3" data-icon="icon-emo-grin"></option>'
+                + '<option value="1" data-icon="icon-emo-happy"></option>'
+                + '<option value="0" data-icon="icon-emo-sleep"></option>'
+                + '<option value="-1" data-icon="icon-emo-displeased"></option>'
+                + '<option value="-3" data-icon="icon-emo-unhappy"></option>'
             + '</select>';
 }
 
