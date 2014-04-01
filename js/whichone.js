@@ -157,6 +157,7 @@ function bindAddAlternativeButton() {
         currentDecision().addAlternative();
         makeEditor( currentDecision() );
         saveToLocalStorge();
+        buildOptionsDropdown();
     });
 }
 
