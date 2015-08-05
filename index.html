@@ -1,0 +1,52 @@
+<html>
+    <head>
+          <title>Hello Controllers in AngularJS</title>
+          <script data-main="js/whichone.js" src="bower_components/requirejs/require.js"> </script>
+    </head>
+    <body>
+        <ng-view> </ng-view>
+
+        <script type="text/ng-template" id="/index.html">
+        <ul>
+            <li ng-repeat="decision in decisions">
+                <a href="#/{{$index}}">{{decision.name}}</a>
+            </li>
+        </ul>
+        </script>
+
+        <script type="text/ng-template" id="/decision_editor.html">
+            <h1>{{ decision.name }}</h1>
+            <table>
+                <tr>
+                    <td> </td>
+                    <td ng-repeat="obj in decision.objectives">
+                        {{ obj.name }}
+                        <select ng-model="obj.weight" convert-to-number>
+                            <option value="1"> 1 </option>
+                            <option value="2"> 2 </option>
+                            <option value="3"> 3 </option>
+                            <option value="4"> 4 </option>
+                            <option value="5"> 5 </option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr ng-repeat="alt in decision.alternatives">
+                    <td> {{ alt.name }} </td>
+                    <td ng-repeat="rating in alt.ratings">
+                        <select ng-model="rating.value" convert-to-number>
+                            <option value="-5"> -5 </option>
+                            <option value="-3"> -3 </option>
+                            <option value="0"> 0 </option>
+                            <option value="3"> 3 </option>
+                            <option value="5"> 5 </option>
+                        </select>
+                    </td>
+                    <td>
+                        {{ scoreFor(alt) }}
+                    </td>
+                </tr>
+            </table>
+        </script>
+    </body>
+</html>
