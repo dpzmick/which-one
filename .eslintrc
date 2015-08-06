@@ -1,0 +1,16 @@
+{
+    "env": {
+        "node": true,
+        "mocha": true,
+        "jquery": true,
+        "requirejs": true
+    },
+    "rules": {
+        "no-underscore-dangle": 0,
+        "strict": [2, "global"],
+        "quotes": [1, "single", "avoid-escape"],
+        "no-multi-spaces": 0,
+        "new-cap": [2, { "capIsNewExceptions": ["Q", "Server"] } ],
+        "key-spacing": 0
+    }
+}

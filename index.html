@@ -9,24 +9,20 @@
         <script type="text/ng-template" id="/index.html">
         <ul>
             <li ng-repeat="decision in decisions">
-                <a href="#/{{$index}}">{{decision.name}}</a>
+                <a href="#/{{$index}}">{{ decision.name }}</a>
             </li>
         </ul>
         </script>
 
         <script type="text/ng-template" id="/decision_editor.html">
+            <a href="#/"> back </a>
             <h1>{{ decision.name }}</h1>
             <table>
                 <tr>
                     <td> </td>
                     <td ng-repeat="obj in decision.objectives">
                         {{ obj.name }}
-                        <select ng-model="obj.weight" convert-to-number>
-                            <option value="1"> 1 </option>
-                            <option value="2"> 2 </option>
-                            <option value="3"> 3 </option>
-                            <option value="4"> 4 </option>
-                            <option value="5"> 5 </option>
+                        <select ng-model="obj.weight" ng-name="weight" ng-options="weight for weight in [1,2,3,4,5]">
                         </select>
                     </td>
                 </tr>
@@ -34,16 +30,11 @@
                 <tr ng-repeat="alt in decision.alternatives">
                     <td> {{ alt.name }} </td>
                     <td ng-repeat="rating in alt.ratings">
-                        <select ng-model="rating.value" convert-to-number>
-                            <option value="-5"> -5 </option>
-                            <option value="-3"> -3 </option>
-                            <option value="0"> 0 </option>
-                            <option value="3"> 3 </option>
-                            <option value="5"> 5 </option>
+                        <select ng-model="rating.value" ng-name="rating" ng-options="rating for rating in [-5,-3,0,5,3]">
                         </select>
                     </td>
                     <td>
-                        {{ scoreFor(alt) }}
+                        {{ alt.getScore() }}
                     </td>
                 </tr>
             </table>

@@ -59,6 +59,7 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
 
     function decisionEditor ($scope, $routeParams, Decisions) {
         $scope.decision = Decisions[$routeParams.id];
+        $scope.x = -5;
 
         $scope.scoreFor = function (alt) {
             var score = 0;
@@ -70,12 +71,6 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
         };
     }
 
-    // TODO move to util
-    function convertToNumber (string) {
-        console.log(string);
-        return parseInt(string);
-    }
-
     var app = angular.module("webapp", ['ngRoute']);
 
     // setup angular app
@@ -84,8 +79,7 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
         .controller('WhichOneController', whichOneController)
         .controller('WhichOneController', ['$scope', 'Decisions', whichOneController])
         .controller('DecisionEditor',     ['$scope', '$routeParams', 'Decisions', decisionEditor])
-        .config(['$routeProvider', routes])
-        .directive('convert-to-number',   convertToNumber);
+        .config(['$routeProvider', routes]);
 
     // do some magic with angularAMD
     return angularAMD.bootstrap(app);
