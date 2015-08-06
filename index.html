@@ -1,7 +1,7 @@
 <html>
     <head>
-          <title>Hello Controllers in AngularJS</title>
-          <script data-main="js/whichone.js" src="bower_components/requirejs/require.js"> </script>
+          <title>Make a Decision</title>
+          <script data-main="js/whichone.js" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.20/require.min.js"> </script>
     </head>
     <body>
         <ng-view> </ng-view>
@@ -9,35 +9,32 @@
         <script type="text/ng-template" id="/index.html">
         <ul>
             <li ng-repeat="decision in decisions">
-                <a href="#/{{$index}}">{{ decision.name }}</a>
+                <a href="#/" ng-click="f($index)">{{ decision.name }} </a>
             </li>
         </ul>
-        </script>
 
-        <script type="text/ng-template" id="/decision_editor.html">
-            <a href="#/"> back </a>
-            <h1>{{ decision.name }}</h1>
-            <table>
-                <tr>
-                    <td> </td>
-                    <td ng-repeat="obj in decision.objectives">
-                        {{ obj.name }}
-                        <select ng-model="obj.weight" ng-name="weight" ng-options="weight for weight in [1,2,3,4,5]">
-                        </select>
-                    </td>
-                </tr>
+        <h1>{{ decisions[descionIndex].name }}</h1>
+        <table>
+            <tr>
+                <td> </td>
+                <td ng-repeat="obj in decisions[decisionIndex].objectives">
+                    {{ obj.name }}
+                    <select ng-model="obj.weight" ng-name="weight" ng-options="weight for weight in [1,2,3,4,5]">
+                    </select>
+                </td>
+            </tr>
 
-                <tr ng-repeat="alt in decision.alternatives">
-                    <td> {{ alt.name }} </td>
-                    <td ng-repeat="rating in alt.ratings">
-                        <select ng-model="rating.value" ng-name="rating" ng-options="rating for rating in [-5,-3,0,5,3]">
-                        </select>
-                    </td>
-                    <td>
-                        {{ alt.getScore() }}
-                    </td>
-                </tr>
-            </table>
+            <tr ng-repeat="alt in decisions[decisionIndex].alternatives">
+                <td> {{ alt.name }} </td>
+                <td ng-repeat="rating in alt.ratings">
+                    <select ng-model="rating.value" ng-name="rating" ng-options="rating for rating in [-5,-3,0,5,3]">
+                    </select>
+                </td>
+                <td>
+                    {{ alt.getScore() }}
+                </td>
+            </tr>
+        </table>
         </script>
     </body>
 </html>

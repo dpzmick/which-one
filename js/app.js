@@ -13,10 +13,6 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
             .when('/', {
                 templateUrl: '/index.html',
                 controller: 'WhichOneController'
-            })
-            .when('/:id', {
-                templateUrl: '/decision_editor.html',
-                controller: 'DecisionEditor'
             });
     }
 
@@ -50,25 +46,47 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
         d1.addObjectives([o1, o2, o3]);
         d1.addAlternatives([a1, a2, a3]);
 
-        return [d1];
+        o1 = new Objective('o1', 1);
+        o2 = new Objective('o2', 2);
+        o3 = new Objective('o3', 5);
+
+        a1 = new Alternative('a1');
+        a1.addRatings([
+            new Rating(o1, 5),
+            new Rating(o2, -5),
+            new Rating(o3, 3)
+        ]);
+
+        a2 = new Alternative('a2');
+        a2.addRatings([
+            new Rating(o1, 3),
+            new Rating(o2, 0),
+            new Rating(o3, -3)
+        ]);
+
+        a3 = new Alternative('a3');
+        a3.addRatings([
+            new Rating(o1, -5),
+            new Rating(o2, 0),
+            new Rating(o3, 5)
+        ]);
+
+        var d2 = new Decision('test 1');
+        d2.addObjectives([o1, o2, o3]);
+        d2.addAlternatives([a1, a2, a3]);
+
+        return [d1, d2];
     }
 
     function whichOneController ($scope, decisions) {
-        $scope.decisions = decisions;
-    }
+        $scope.decisions     = decisions;
+        $scope.decisionIndex = 0;
 
-    function decisionEditor ($scope, $routeParams, Decisions) {
-        $scope.decision = Decisions[$routeParams.id];
-        $scope.x = -5;
+        $scope.decision      = $scope.decisions[$scope.decisionIndex];
 
-        $scope.scoreFor = function (alt) {
-            var score = 0;
-            alt.ratings.forEach(function (rating) {
-                score += rating.value * rating.obj.weight;
-            });
-
-            return score;
-        };
+        $scope.f = function (index) {
+            $scope.decisionIndex = index;
+        }
     }
 
     var app = angular.module("webapp", ['ngRoute']);
@@ -78,7 +96,6 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
         .factory('Decisions', decisionFactory)
         .controller('WhichOneController', whichOneController)
         .controller('WhichOneController', ['$scope', 'Decisions', whichOneController])
-        .controller('DecisionEditor',     ['$scope', '$routeParams', 'Decisions', decisionEditor])
         .config(['$routeProvider', routes]);
 
     // do some magic with angularAMD
