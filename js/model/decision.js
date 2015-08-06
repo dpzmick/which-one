@@ -1,13 +1,37 @@
 'use strict';
-define(function () {
+define([
+    'model/rating',
+    'model/objective',
+    'model/alternative'
+],
+function (Rating, Objective, Alternative) {
     function Decision (name) {
         this.name = name;
         this.objectives   = [];
         this.alternatives = [];
     }
 
+    Decision.prototype.addNewObjective = function () {
+        var objective = new Objective('new', 1);
+        this.objectives.push(objective);
+
+        this.alternatives.forEach(function (alt) {
+            alt.addRating(new Rating(objective, 0));
+        });
+    };
+
     Decision.prototype.addObjectives = function (objectives) {
         this.objectives = this.objectives.concat(objectives);
+    };
+
+    Decision.prototype.addNewAlternative = function () {
+        var alt = new Alternative('new');
+
+        this.objectives.forEach(function (obj) {
+            alt.addRating(new Rating(obj, 0));
+        });
+
+        this.alternatives.push(alt);
     };
 
     Decision.prototype.addAlternatives = function (alternatives) {

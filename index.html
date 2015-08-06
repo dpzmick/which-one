@@ -11,6 +11,7 @@
             <li ng-repeat="decision in decisions">
                 <a href="#/" ng-click="f($index)">{{ decision.name }} </a>
             </li>
+            <li> <a href="#/" ng-click="newDecision()"> Add a decision </a> </li>
         </ul>
 
         <h1>{{ decisions[descionIndex].name }}</h1>
@@ -22,6 +23,7 @@
                     <select ng-model="obj.weight" ng-name="weight" ng-options="weight for weight in [1,2,3,4,5]">
                     </select>
                 </td>
+                <td> <a href="#/" ng-click="addObjective()"> + </a> </td>
             </tr>
 
             <tr ng-repeat="alt in decisions[decisionIndex].alternatives">
@@ -33,6 +35,9 @@
                 <td>
                     {{ alt.getScore() }}
                 </td>
+            </tr>
+            <tr>
+                <td> <a href="#/" ng-click="addAlternative()"> + </a> </td>
             </tr>
         </table>
         </script>

@@ -6,6 +6,10 @@ define(function () {
         this.ratings = [];
     }
 
+    Alternative.prototype.addRating = function (rating) {
+        this.ratings.push(rating);
+    };
+
     Alternative.prototype.addRatings = function (ratings) {
         this.ratings = this.ratings.concat(ratings);
     };

@@ -82,11 +82,22 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
         $scope.decisions     = decisions;
         $scope.decisionIndex = 0;
 
-        $scope.decision      = $scope.decisions[$scope.decisionIndex];
-
+        // TODO why
         $scope.f = function (index) {
             $scope.decisionIndex = index;
         }
+
+        $scope.newDecision = function () {
+            $scope.decisions.push(new Decision('new'));
+        };
+
+        $scope.addObjective = function () {
+            $scope.decisions[$scope.decisionIndex].addNewObjective();
+        };
+
+        $scope.addAlternative = function () {
+            $scope.decisions[$scope.decisionIndex].addNewAlternative();
+        };
     }
 
     var app = angular.module("webapp", ['ngRoute']);
