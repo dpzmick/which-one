@@ -112,3 +112,4 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
     // do some magic with angularAMD
     return angularAMD.bootstrap(app);
 });
+
