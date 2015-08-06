@@ -1,13 +1,16 @@
+'use strict';
+
 define(
     [
         'angularAMD',
-        'angular-route',
         'model/decision',
         'model/alternative',
         'model/rating',
-        'model/objective'
+        'model/objective',
+        'lodash',
+        'angular-route'
     ],
-function (angularAMD, _, Decision, Alternative, Rating, Objective) {
+function (angularAMD, Decision, Alternative, Rating, Objective, _) {
     function routes ($routeProvider) {
         $routeProvider
             .when('/', {
@@ -17,75 +20,31 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
     }
 
     function decisionFactory () {
-        var o1 = new Objective('o1', 3);
-        var o2 = new Objective('o2', 5);
-        var o3 = new Objective('o3', 2);
+        if (typeof localStorage['matrices'] === 'undefined') {
+            console.log('no local storage found');
+            return [Decision.defaultDecision()];
+        } else {
+            console.log('found local storage');
+            var ms     = JSON.parse(localStorage['matrices']);
+            var vs     = JSON.parse(localStorage['vectors']);
+            var anames = JSON.parse(localStorage['altNames']);
+            var onames = JSON.parse(localStorage['objNames']);
+            var dnames = JSON.parse(localStorage['decisionNames']);
 
-        var a1 = new Alternative('a1');
-        a1.addRatings([
-            new Rating(o1, 5),
-            new Rating(o2, -5),
-            new Rating(o3, 3)
-        ]);
-
-        var a2 = new Alternative('a2');
-        a2.addRatings([
-            new Rating(o1, 3),
-            new Rating(o2, 0),
-            new Rating(o3, -3)
-        ]);
-
-        var a3 = new Alternative('a3');
-        a3.addRatings([
-            new Rating(o1, -5),
-            new Rating(o2, 0),
-            new Rating(o3, 5)
-        ]);
-
-        var d1 = new Decision('test');
-        d1.addObjectives([o1, o2, o3]);
-        d1.addAlternatives([a1, a2, a3]);
-
-        o1 = new Objective('o1', 1);
-        o2 = new Objective('o2', 2);
-        o3 = new Objective('o3', 5);
-
-        a1 = new Alternative('a1');
-        a1.addRatings([
-            new Rating(o1, 5),
-            new Rating(o2, -5),
-            new Rating(o3, 3)
-        ]);
-
-        a2 = new Alternative('a2');
-        a2.addRatings([
-            new Rating(o1, 3),
-            new Rating(o2, 0),
-            new Rating(o3, -3)
-        ]);
-
-        a3 = new Alternative('a3');
-        a3.addRatings([
-            new Rating(o1, -5),
-            new Rating(o2, 0),
-            new Rating(o3, 5)
-        ]);
-
-        var d2 = new Decision('test 1');
-        d2.addObjectives([o1, o2, o3]);
-        d2.addAlternatives([a1, a2, a3]);
-
-        return [d1, d2];
+            return _.map(_.zip(ms, vs, anames, onames, dnames), _.spread(function (m, v, as, os, name) {
+                return Decision.fromMatrixVectorNames(m, v, as, os, name);
+            }));
+        }
     }
 
-    function whichOneController ($scope, decisions) {
+    function whichOneController ($scope, decisions, $window) {
         $scope.decisions     = decisions;
         $scope.decisionIndex = 0;
 
         // TODO why
         $scope.f = function (index) {
             $scope.decisionIndex = index;
-        }
+        };
 
         $scope.newDecision = function () {
             $scope.decisions.push(new Decision('new'));
@@ -98,15 +57,53 @@ function (angularAMD, _, Decision, Alternative, Rating, Objective) {
         $scope.addAlternative = function () {
             $scope.decisions[$scope.decisionIndex].addNewAlternative();
         };
+
+        $scope.clearLocalStorage = function () {
+            delete localStorage['matrices'];
+            delete localStorage['vectors'];
+            delete localStorage['altNames'];
+            delete localStorage['objNames'];
+            delete localStorage['decisionNames'];
+            $window.location.reload();
+        };
+
+        // make everyone cry because perfomance is sooo bad
+        $scope.$watch(
+            function (data) {
+                localStorage['matrices'] = JSON.stringify(data.decisions.map(function (dec) {
+                    return dec.getMatrix();
+                }));
+
+                localStorage['vectors'] = JSON.stringify(data.decisions.map(function (dec) {
+                    return dec.getWeightVector();
+                }));
+
+                localStorage['altNames'] = JSON.stringify(data.decisions.map(function (dec) {
+                    return dec.getAlternatives().map(function (alt) {
+                        return alt.name;
+                    });
+                }));
+
+                localStorage['objNames'] = JSON.stringify(data.decisions.map(function (dec) {
+                    return dec.getObjectives().map(function (obj) {
+                        return obj.name;
+                    });
+                }));
+
+                localStorage['decisionNames'] = JSON.stringify(data.decisions.map(function (dec) {
+                    return dec.name;
+                }));
+            }
+        );
     }
 
-    var app = angular.module("webapp", ['ngRoute']);
+    var app = angular.module('webapp', ['ngRoute']);
 
     // setup angular app
     app
         .factory('Decisions', decisionFactory)
         .controller('WhichOneController', whichOneController)
-        .controller('WhichOneController', ['$scope', 'Decisions', whichOneController])
+        .controller('WhichOneController', ['$scope', 'Decisions', '$window', whichOneController])
         .config(['$routeProvider', routes]);
 
     // do some magic with angularAMD

@@ -2,14 +2,92 @@
 define([
     'model/rating',
     'model/objective',
-    'model/alternative'
+    'model/alternative',
+    'lodash'
 ],
-function (Rating, Objective, Alternative) {
+function (Rating, Objective, Alternative, _) {
     function Decision (name) {
         this.name = name;
         this.objectives   = [];
         this.alternatives = [];
     }
+
+    Decision.defaultDecision = function () {
+        var o1 = new Objective('o1', 3);
+        var o2 = new Objective('o2', 5);
+        var o3 = new Objective('o3', 2);
+
+        var a1 = new Alternative('a1');
+        a1.addRatings([
+            new Rating(o1, 5),
+            new Rating(o2, -5),
+            new Rating(o3, 3)
+        ]);
+
+        var a2 = new Alternative('a2');
+        a2.addRatings([
+            new Rating(o1, 3),
+            new Rating(o2, 0),
+            new Rating(o3, -3)
+        ]);
+
+        var a3 = new Alternative('a3');
+        a3.addRatings([
+            new Rating(o1, -5),
+            new Rating(o2, 0),
+            new Rating(o3, 5)
+        ]);
+
+        var d = new Decision('test');
+        d.addObjectives([o1, o2, o3]);
+        d.addAlternatives([a1, a2, a3]);
+
+        return d;
+    };
+
+    Decision.fromMatrixVectorNames = function (matrix, vector, altNames, objNames, name) {
+        var i, j;
+        var objectives = [];
+        var alts = [];
+        var tmpratings = [];
+        var tmpo;
+        var tmpalt;
+
+        var d = new Decision(name);
+
+        // make objectives
+        if (vector.length !== objNames.length) {
+            throw new Error('vector and objNames must be the same length');
+        }
+
+        _.map(_.zip(objNames, vector), _.spread(function (name, weight) {
+            objectives.push(new Objective(name, weight))
+        }));
+
+        d.addObjectives(objectives);
+
+        // make alternatives
+        if (matrix.length !== altNames.length) {
+            throw new Error('matrix first dimension must equal number of alternative names');
+        }
+
+        // TODO check internal length
+        for (i = 0; i < matrix.length; i++) {
+            tmpalt     = new Alternative(altNames[i]);
+            tmpratings = [];
+
+            for (j = 0; j < matrix[i].length; j++) {
+                tmpratings.push(new Rating(objectives[j], matrix[i][j]));
+            }
+
+            tmpalt.addRatings(tmpratings);
+            alts.push(tmpalt);
+        }
+
+        d.addAlternatives(alts);
+
+        return d;
+    };
 
     Decision.prototype.addNewObjective = function () {
         var objective = new Objective('new', 1);
@@ -22,6 +100,10 @@ function (Rating, Objective, Alternative) {
 
     Decision.prototype.addObjectives = function (objectives) {
         this.objectives = this.objectives.concat(objectives);
+    };
+
+    Decision.prototype.getObjectives = function () {
+        return this.objectives;
     };
 
     Decision.prototype.addNewAlternative = function () {
@@ -38,6 +120,10 @@ function (Rating, Objective, Alternative) {
         this.alternatives = this.alternatives.concat(alternatives);
     };
 
+    Decision.prototype.getAlternatives = function () {
+        return this.alternatives;
+    };
+
     /**
      * Gets the alternative/rating matrix
      *
@@ -47,12 +133,14 @@ function (Rating, Objective, Alternative) {
      */
     Decision.prototype.getMatrix = function () {
         var matrix = [];
+        var row = [];
 
         this.alternatives.forEach(function (alt) {
-            var row = [];
+            row = [];
             alt.ratings.forEach(function (rating) {
                 row.push(rating.value);
             });
+            matrix.push(row);
         });
 
         return matrix;
